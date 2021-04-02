@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
@@ -62,5 +63,15 @@ public class FileExistTest {
         employeePayrollService.printData(EmployeePayrollService.IOService.FILE_IO);
         long entries = employeePayrollService.countEntries(EmployeePayrollService.IOService.FILE_IO);
         Assert.assertEquals(3, entries);
+    }
+
+    @Test
+    public void givenEmloyeePayrollFile_AfterReading_ShouldProcessTheDataAsAnArrayListOfEmployeePayrollObjects() {
+        ArrayList<EmployeePayrollServicedatebase> employeePayrollDataArrayList = new ArrayList<>();
+        EmployeePayrollService employeePayrollService = new EmployeePayrollService(employeePayrollDataArrayList);
+        employeePayrollDataArrayList = employeePayrollService.readData(EmployeePayrollService.IOService.FILE_IO);
+        for(EmployeePayrollServicedatebase emp : employeePayrollDataArrayList)
+            System.out.println(emp);
+        Assert.assertEquals(3, employeePayrollDataArrayList.size());
     }
 }

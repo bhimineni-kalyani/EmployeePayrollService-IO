@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class EmployeePayrollIO {
     public static String PAYROLL_FILE_NAME = "payrollFile.txt";
@@ -42,5 +43,18 @@ public class EmployeePayrollIO {
             e.printStackTrace();
         }
         return entries;
+    }
+
+    public List<EmployeePayrollServicedatebase> readData() {
+        try {
+            return Files.lines(new File(PAYROLL_FILE_NAME).toPath())
+                    .map(line -> line.trim())
+                    .map(line -> EmployeePayrollServicedatebase.extractEmployeePayrollObject(line))
+                    .collect(Collectors.toList());
+        }
+        catch(IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

@@ -1,5 +1,8 @@
 package com.bridgelabz;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class EmployeePayrollServicedatebase {
     int id;
     String name;
@@ -9,6 +12,22 @@ public class EmployeePayrollServicedatebase {
         this.id = id;
         this.name = name;
         this.salary = salary;
+    }
+
+    public static EmployeePayrollServicedatebase extractEmployeePayrollObject(String line) {
+        String[] fields = line.split(",");
+        String[] storageFields = new String[fields.length];
+        Pattern pattern = Pattern.compile("(?<=([:][\\s]))[0-9a-zA-Z.\\s]+");
+        int index = 0;
+        for(String field : fields){
+            Matcher matcher = pattern.matcher(field);
+            if(matcher.find())
+                storageFields[index++] = matcher.group();
+        }
+        int id = Integer.parseInt(storageFields[0]);
+        String name = storageFields[1];
+        double salary = Double.parseDouble(storageFields[2]);
+        return new EmployeePayrollServicedatebase(id, name, salary);
     }
 
     @Override
