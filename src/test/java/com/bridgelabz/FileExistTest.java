@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.stream.IntStream;
 
 public class FileExistTest {
@@ -47,5 +48,19 @@ public class FileExistTest {
         Path dir = Paths.get(Home +"/"+ PlaywithNIO);
         Files.list(dir).filter(Files::isRegularFile).forEach(System.out::println);
         new WatchServicetowatch(dir).processEvents();
+    }
+
+    @Test
+    public void given3EmployeesWhenWrittenToFileShouldMatchEmployeeEntries(){
+        EmployeePayrollServicedatebase[] arrayOfEmps = {
+                new EmployeePayrollServicedatebase(1, "Sri", 100000.0),
+                new EmployeePayrollServicedatebase(2, "Sai", 150000.0),
+                new EmployeePayrollServicedatebase(3, "Ram", 20000.0)
+        };
+        EmployeePayrollService employeePayrollService = new EmployeePayrollService(Arrays.asList(arrayOfEmps));
+        employeePayrollService.writeEmployeePayrollData(EmployeePayrollService.IOService.FILE_IO);
+        employeePayrollService.printData(EmployeePayrollService.IOService.FILE_IO);
+        long entries = employeePayrollService.countEntries(EmployeePayrollService.IOService.FILE_IO);
+        Assert.assertEquals(3, entries);
     }
 }
