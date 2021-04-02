@@ -9,8 +9,8 @@ import java.nio.file.Paths;
 import java.util.stream.IntStream;
 
 public class FileExistTest {
-    private static String Home = System.getProperty("user.home");
-    private static String PlaywithNIO = "PlayGround";
+    private static final String Home = System.getProperty("user.home");
+    private static final String PlaywithNIO = "PlayGround";
     private Assertions Assert;
 
     @Test
@@ -31,7 +31,7 @@ public class FileExistTest {
             try {
                 Files.createFile(tempFile);
             }
-            catch(IOException e){
+            catch(IOException e) {
             }
             Assert.assertTrue(Files.exists(tempFile));
         });
@@ -40,5 +40,12 @@ public class FileExistTest {
         Files.newDirectoryStream(playPath).forEach(System.out::println);
         Files.newDirectoryStream(playPath, path -> path.toFile().isFile()
                 && path.toString().startsWith("temp")).forEach(System.out::println);
+    }
+
+    @Test
+    public void givenADirectoryWhenWatchedListsAllTheActivities() throws IOException {
+        Path dir = Paths.get(Home +"/"+ PlaywithNIO);
+        Files.list(dir).filter(Files::isRegularFile).forEach(System.out::println);
+        new WatchServicetowatch(dir).processEvents();
     }
 }
