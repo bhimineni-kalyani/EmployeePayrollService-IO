@@ -14,4 +14,13 @@ public class EmployeePayrollMSSQLDBtest {
         List<EmployeePayrollServicedatebase> EmployeePayrollData = EmployeePayrollService.readData(DB_IO);
         Assert.assertEquals(3, EmployeePayrollServicedatebase.size());
     }
+
+    @Test
+    public void givenNewSalaryForEmployee_WhenUpdated_ShouldSyncWithDatabase() {
+        EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+        List<EmployeePayrollServicedatebase> employeePayrollDataList = employeePayrollService.readData(DB_IO);
+        employeePayrollService.updateEmployeeSalary("Sri", 3000000);
+        boolean isSync = employeePayrollService.checkEmployeePayrollInSyncWithDB("Sri");
+        Assert.assertTrue(isSync);
+    }
 }
