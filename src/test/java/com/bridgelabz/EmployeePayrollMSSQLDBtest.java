@@ -1,25 +1,38 @@
 package com.bridgelabz;
 
+import org.junit.Before;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import java.util.List;
 import static com.bridgelabz.EmployeePayrollService.IOService.DB_IO;
 
 public class EmployeePayrollMSSQLDBtest {
+    private EmployeePayrollService employeePayrollService;
     private Assertions Assert;
 
-    @Test
-    public void givenEmployeePayrollInDB_WhenRetrieved_ShouldMatchEmployeeCount() {
-        EmployeePayrollService employeePayrollService = new EmployeePayrollService();
-        List<EmployeePayrollServicedatebase> EmployeePayrollData = EmployeePayrollService.readData(DB_IO);
-        Assert.assertEquals(3, EmployeePayrollServicedatebase.size());
+    @Before
+    public void init(){
+        employeePayrollService = new EmployeePayrollService();
     }
 
     @Test
-    public void givenNewSalaryForEmployee_WhenUpdated_ShouldSyncWithDatabase() {
-        EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+    public void givenEmployeePayrollInDB_WhenRetrieved_ShouldMatchEmployeeCount(){
+        List<EmployeePayrollServicedatebase> employeePayrollData = employeePayrollService.readData(DB_IO);
+        Assert.assertEquals(3, employeePayrollData.size());
+    }
+
+    @Test
+    public void givenNewSalaryForEmployee_WhenUpdated_UsingStatement_ShouldSyncWithDatabase(){
         List<EmployeePayrollServicedatebase> employeePayrollDataList = employeePayrollService.readData(DB_IO);
-        employeePayrollService.updateEmployeeSalary("Sri", 3000000);
+        employeePayrollService.updateEmployeeSalary("Sri", 3000000, 1);
+        boolean isSync = employeePayrollService.checkEmployeePayrollInSyncWithDB("Sri");
+        Assert.assertTrue(isSync);
+    }
+
+    @Test
+    public void givenNewSalaryForEmployee_WhenUpdated_UsingPreparedStatement_ShouldSyncWithDatabase(){
+        List<EmployeePayrollServicedatebase> employeePayrollDataList = employeePayrollService.readData(DB_IO);
+        employeePayrollService.updateEmployeeSalary("Sri", 2000000, 1);
         boolean isSync = employeePayrollService.checkEmployeePayrollInSyncWithDB("Sri");
         Assert.assertTrue(isSync);
     }

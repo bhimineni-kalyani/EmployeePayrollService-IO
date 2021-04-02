@@ -5,17 +5,16 @@ import java.util.List;
 import java.util.Scanner;
 
 public class EmployeePayrollService {
+    private List<EmployeePayrollServicedatebase> employeePayrollList;
+
     enum IOService{ CONSOLE_IO,
         FILE_IO,
         DB_IO,
         REST_IO;
     }
 
-    private List<EmployeePayrollServicedatebase> employeePayrollList;
-    private EmployeePayrollMSSQLDB employeePayrollDBService;
-
     public EmployeePayrollService() {
-        employeePayrollDBService = EmployeePayrollMSSQLDB.getInstance();
+        EmployeePayrollMSSQLDB employeePayrollDBService = EmployeePayrollMSSQLDB.getInstance();
     }
 
     public EmployeePayrollService(List<EmployeePayrollServicedatebase> empList) {
@@ -33,7 +32,7 @@ public class EmployeePayrollService {
 
     public void writeEmployeePayrollData(IOService ioService) {
         if(ioService.equals(IOService.CONSOLE_IO))
-            System.out.println("Writing Employee payroll data to console:\n " + employeePayrollList);
+            System.out.println("EmployeePayrollServicedatabase to console:\n " + employeePayrollList);
         else if(ioService.equals(IOService.FILE_IO))
             new EmployeePayrollIO().writeData(employeePayrollList);
     }
@@ -69,14 +68,21 @@ public class EmployeePayrollService {
             return new ArrayList<>(employeePayrollList);
         }
         if(ioService.equals(IOService.DB_IO)) {
-            employeePayrollList = new EmployeePayrollMSSQLDB().readData();
+            EmployeePayrollService employeePayrollDBService = null;
+            employeePayrollList = employeePayrollDBService.readData();
             return new ArrayList<>(employeePayrollList);
         }
         return null;
     }
 
-    public void updateEmployeeSalary(String name, double salary) {
-        int result = employeePayrollDBService.updateEmployeeData(name, salary);
+    private List<EmployeePayrollServicedatebase> readData() {
+        return null;
+    }
+
+    public void updateEmployeeSalary(String name, double salary, int choice){
+        EmployeePayrollMSSQLDB employeePayrollDBService = null;
+        int result = (choice == 1) ? employeePayrollDBService.updateEmployeeData(name, salary)
+                : employeePayrollDBService.updateEmployeeDataPreparedStatement(name, salary);
         if(result == 0) return;
         EmployeePayrollServicedatebase employeePayrollData = this.getEmployeePayrollData(name);
         if(employeePayrollData != null) employeePayrollData.salary = salary;
@@ -84,13 +90,14 @@ public class EmployeePayrollService {
 
     private EmployeePayrollServicedatebase getEmployeePayrollData(String name) {
         return this.employeePayrollList.stream()
-                .filter(employeePayrollDataItem -> employeePayrollDataItem.name.equals(name))
-                .findFirst()
-                .orElse(null);
+                    .filter(employeePayrollDataItem -> employeePayrollDataItem.name.equals(name))
+                    .findFirst()
+                    .orElse(null);
     }
 
     public boolean checkEmployeePayrollInSyncWithDB(String name) {
-        List<EmployeePayrollServicedatebase> employeePayrollDataList = employeePayrollDBService.getEmployeePayrollData(name);
+        EmployeePayrollService employeePayrollDBService = null;
+        List<EmployeePayrollServicedatebase> employeePayrollDataList = (List<EmployeePayrollServicedatebase>) employeePayrollDBService.getEmployeePayrollData(name);
         return employeePayrollDataList.get(0).equals(getEmployeePayrollData(name));
     }
 }
