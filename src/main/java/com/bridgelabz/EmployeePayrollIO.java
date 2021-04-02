@@ -19,16 +19,17 @@ public class EmployeePayrollIO {
         try {
             Files.write(Paths.get(PAYROLL_FILE_NAME), empBuffer.toString().getBytes());
         }
-        catch(IOException e) {
+        catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void printData() {
         try {
-            Files.lines(new File(PAYROLL_FILE_NAME).toPath()).forEach(System.out::println);
+            Files.lines(new File(PAYROLL_FILE_NAME).toPath())
+                    .forEach(System.out::println);
         }
-        catch(IOException e) {
+        catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -39,7 +40,7 @@ public class EmployeePayrollIO {
             entries = Files.lines(new File(PAYROLL_FILE_NAME).toPath())
                     .count();
         }
-        catch(IOException e) {
+        catch (IOException e) {
             e.printStackTrace();
         }
         return entries;
@@ -49,10 +50,10 @@ public class EmployeePayrollIO {
         try {
             return Files.lines(new File(PAYROLL_FILE_NAME).toPath())
                     .map(line -> line.trim())
-                    .map(line -> EmployeePayrollServicedatebase.extractEmployeePayrollObject(line))
+                    .map(line -> EmployeePayrollServicedatebase.extractEmployeePayrollServicedatabaseObject(line))
                     .collect(Collectors.toList());
         }
-        catch(IOException e) {
+        catch (IOException e) {
             e.printStackTrace();
         }
         return null;

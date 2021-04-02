@@ -1,5 +1,6 @@
 package com.bridgelabz;
 
+import java.time.LocalDate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -7,6 +8,7 @@ public class EmployeePayrollServicedatebase {
     int id;
     String name;
     double salary;
+    LocalDate date;
 
     public EmployeePayrollServicedatebase(int id, String name, double salary) {
         this.id = id;
@@ -14,12 +16,17 @@ public class EmployeePayrollServicedatebase {
         this.salary = salary;
     }
 
-    public static EmployeePayrollServicedatebase extractEmployeePayrollObject(String line) {
+    public EmployeePayrollServicedatebase(int id, String name, double salary, LocalDate date) {
+        this(id, name, salary);
+        this.date = date;
+    }
+
+    public static EmployeePayrollServicedatebase extractEmployeePayrollServicedatabaseObject(String line) {
         String[] fields = line.split(",");
         String[] storageFields = new String[fields.length];
         Pattern pattern = Pattern.compile("(?<=([:][\\s]))[0-9a-zA-Z.\\s]+");
         int index = 0;
-        for(String field : fields){
+        for(String field : fields) {
             Matcher matcher = pattern.matcher(field);
             if(matcher.find())
                 storageFields[index++] = matcher.group();
@@ -32,6 +39,6 @@ public class EmployeePayrollServicedatebase {
 
     @Override
     public String toString() {
-        return "Id : " +this.id+ ",Name : " +this.name+ ",Salary : " +this.salary;
+        return "Emp id: " + this.id + ", Name: " + this.name + ", Salary: " + this.salary;
     }
 }
