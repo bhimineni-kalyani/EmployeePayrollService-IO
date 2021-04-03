@@ -11,7 +11,7 @@ public class EmployeePayrollMSSQLDBtest {
     private Assertions Assert;
 
     @Before
-    public void init(){
+    public void init() {
         employeePayrollService = new EmployeePayrollService();
     }
 
@@ -30,10 +30,18 @@ public class EmployeePayrollMSSQLDBtest {
     }
 
     @Test
-    public void givenNewSalaryForEmployee_WhenUpdated_UsingPreparedStatement_ShouldSyncWithDatabase(){
+    public void givenNewSalaryForEmployee_WhenUpdated_UsingPreparedStatement_ShouldSyncWithDatabase() {
         List<EmployeePayrollServicedatebase> employeePayrollDataList = employeePayrollService.readData(DB_IO);
         employeePayrollService.updateEmployeeSalary("Sri", 2000000, 1);
         boolean isSync = employeePayrollService.checkEmployeePayrollInSyncWithDB("Sri");
         Assert.assertTrue(isSync);
+    }
+
+    @Test
+    public void givenDatesInRange_WhenRetrievedDataBetweenTwoDates_ShouldMatchEmployeeCount() {
+        String from = "2018-01-01";
+        String to = null;
+        List<EmployeePayrollServicedatebase> employeePayrollDataList = employeePayrollService.getEmployeePayrollDataBetweenDates(DB_IO, from, to);
+        Assert.assertEquals(3, employeePayrollDataList.size());
     }
 }

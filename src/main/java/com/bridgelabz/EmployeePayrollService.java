@@ -5,16 +5,17 @@ import java.util.List;
 import java.util.Scanner;
 
 public class EmployeePayrollService {
-    private List<EmployeePayrollServicedatebase> employeePayrollList;
-
-    enum IOService{ CONSOLE_IO,
+    enum IOService { CONSOLE_IO,
         FILE_IO,
         DB_IO,
         REST_IO;
     }
 
+    private List<EmployeePayrollServicedatebase> employeePayrollList;
+    private EmployeePayrollMSSQLDB employeePayrollDBService;
+
     public EmployeePayrollService() {
-        EmployeePayrollMSSQLDB employeePayrollDBService = EmployeePayrollMSSQLDB.getInstance();
+        employeePayrollDBService = EmployeePayrollMSSQLDB.getInstance();
     }
 
     public EmployeePayrollService(List<EmployeePayrollServicedatebase> empList) {
@@ -38,11 +39,11 @@ public class EmployeePayrollService {
     }
 
     public void readEmployeePayrollData(Scanner consoleInputReader) {
-        System.out.println("Enter id: ");
+        System.out.println("Enter id : ");
         int id = consoleInputReader.nextInt();
         consoleInputReader.nextLine();
 
-        System.out.println("Enter name: ");
+        System.out.println("Enter name : ");
         String name = consoleInputReader.nextLine();
 
         System.out.println("Enter salary: ");
@@ -63,41 +64,41 @@ public class EmployeePayrollService {
     }
 
     public ArrayList<EmployeePayrollServicedatebase> readData(IOService ioService) {
-        if(ioService.equals(IOService.FILE_IO)) {
+        if(ioService.equals(IOService.FILE_IO)){
             employeePayrollList = new EmployeePayrollIO().readData();
             return new ArrayList<>(employeePayrollList);
         }
-        if(ioService.equals(IOService.DB_IO)) {
-            EmployeePayrollService employeePayrollDBService = null;
+        if(ioService.equals(IOService.DB_IO)){
             employeePayrollList = employeePayrollDBService.readData();
             return new ArrayList<>(employeePayrollList);
         }
         return null;
     }
 
-    private List<EmployeePayrollServicedatebase> readData() {
-        return null;
-    }
-
-    public void updateEmployeeSalary(String name, double salary, int choice){
-        EmployeePayrollMSSQLDB employeePayrollDBService = null;
+    public void updateEmployeeSalary(String name, double salary, int choice) {
         int result = (choice == 1) ? employeePayrollDBService.updateEmployeeData(name, salary)
                 : employeePayrollDBService.updateEmployeeDataPreparedStatement(name, salary);
         if(result == 0) return;
-        EmployeePayrollServicedatebase employeePayrollData = this.getEmployeePayrollData(name);
+        EmployeePayrollServicedatebase employeePayrollData = this.getEmployeePayrollDataBetweenDates(name);
         if(employeePayrollData != null) employeePayrollData.salary = salary;
     }
 
-    private EmployeePayrollServicedatebase getEmployeePayrollData(String name) {
+    private EmployeePayrollServicedatebase getEmployeePayrollDataBetweenDates(String name) {
         return this.employeePayrollList.stream()
                     .filter(employeePayrollDataItem -> employeePayrollDataItem.name.equals(name))
                     .findFirst()
                     .orElse(null);
     }
 
+    public List<EmployeePayrollServicedatebase> getEmployeePayrollDataBetweenDates(IOService ioService, String from, String to){
+        if(ioService.equals(IOService.DB_IO)) {
+            return employeePayrollDBService.getEmployeePayrollDataBetweenDates(from, to);
+        }
+        return null;
+    }
+
     public boolean checkEmployeePayrollInSyncWithDB(String name) {
-        EmployeePayrollService employeePayrollDBService = null;
-        List<EmployeePayrollServicedatebase> employeePayrollDataList = (List<EmployeePayrollServicedatebase>) employeePayrollDBService.getEmployeePayrollData(name);
-        return employeePayrollDataList.get(0).equals(getEmployeePayrollData(name));
+        List<EmployeePayrollServicedatebase> employeePayrollDataList = employeePayrollDBService.getEmployeePayrollData(name);
+        return employeePayrollDataList.get(0).equals(getEmployeePayrollDataBetweenDates(name));
     }
 }

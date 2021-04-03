@@ -38,7 +38,8 @@ public class EmployeePayrollMSSQLDB {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(selectQuery);
             employeePayrollList = this.getEmployeePayrollData(resultSet);
-        } catch (SQLException throwables) {
+        }
+        catch (SQLException throwables) {
             throwables.printStackTrace();
         }
         return employeePayrollList;
@@ -49,7 +50,8 @@ public class EmployeePayrollMSSQLDB {
         try(Connection connection = this.getConnection()){
             Statement statement = connection.createStatement();
             return statement.executeUpdate(sqlUpdate);
-        } catch (SQLException throwables) {
+        }
+        catch (SQLException throwables) {
             throwables.printStackTrace();
         }
         return 0;
@@ -63,7 +65,8 @@ public class EmployeePayrollMSSQLDB {
             employeePayrollDataStatement.setString(1, name);
             ResultSet resultSet = employeePayrollDataStatement.executeQuery();
             employeePayrollList = this.getEmployeePayrollData(resultSet);
-        } catch (SQLException throwables) {
+        }
+        catch (SQLException throwables) {
             throwables.printStackTrace();
         }
         return employeePayrollList;
@@ -79,18 +82,20 @@ public class EmployeePayrollMSSQLDB {
                 LocalDate startDate = resultSet.getDate("start").toLocalDate();
                 employeePayrollDataList.add(new EmployeePayrollServicedatebase(id, name, salary, startDate));
             }
-        } catch (SQLException throwables) {
+        }
+        catch (SQLException throwables) {
             throwables.printStackTrace();
         }
         return employeePayrollDataList;
     }
 
     public void prepareStatementForEmployeeData(){
-        try{
+        try {
             Connection connection = this.getConnection();
             String sql = "SELECT * FROM employee_payroll WHERE name = ?";
             employeePayrollDataStatement = connection.prepareStatement(sql);
-        } catch (SQLException throwables) {
+        }
+        catch (SQLException throwables) {
             throwables.printStackTrace();
         }
     }
@@ -103,10 +108,27 @@ public class EmployeePayrollMSSQLDB {
             preparedStatement.setString(2, name);
             int resultSet = preparedStatement.executeUpdate();
             return resultSet;
-        } catch (SQLException throwables) {
+        }
+        catch (SQLException throwables) {
             throwables.printStackTrace();
         }
         return 0;
     }
-}
 
+    public List<EmployeePayrollServicedatebase> getEmployeePayrollDataBetweenDates(String from, String to) {
+        Date start = Date.valueOf(from);
+        Date end = (to == null) ? Date.valueOf(LocalDate.now()) : Date.valueOf(to);
+        try(Connection connection = this.getConnection()){
+            String sql = "SELECT * FROM employee_payroll WHERE start BETWEEN ? AND ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setDate(1, start);
+            preparedStatement.setDate(2, end);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return this.getEmployeePayrollData(resultSet);
+        }
+        catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return null;
+    }
+}
