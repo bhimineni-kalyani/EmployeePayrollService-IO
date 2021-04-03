@@ -2,6 +2,7 @@ package com.bridgelabz;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class EmployeePayrollService {
@@ -100,5 +101,19 @@ public class EmployeePayrollService {
     public boolean checkEmployeePayrollInSyncWithDB(String name) {
         List<EmployeePayrollServicedatebase> employeePayrollDataList = employeePayrollDBService.getEmployeePayrollData(name);
         return employeePayrollDataList.get(0).equals(getEmployeePayrollDataBetweenDates(name));
+    }
+
+    public List<String> calculateSumAverageMinMax(IOService ioService) {
+        if(ioService.equals(IOService.DB_IO)){
+            return employeePayrollDBService.calculateSumAverageMinMax();
+        }
+        return null;
+    }
+
+    public Map<String, List<Double>> calculateSumAverageMinMax_GroupByGender(IOService ioService) {
+        if(ioService.equals(IOService.DB_IO)) {
+            return employeePayrollDBService.calculateSumAverageMinMax_GroupByGender();
+        }
+        return null;
     }
 }

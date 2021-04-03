@@ -3,7 +3,9 @@ package com.bridgelabz;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EmployeePayrollMSSQLDB {
     private static final String jdbcURL = "jdbc:mysql://localhost:3306/payroll_service?useSSL=false";
@@ -13,11 +15,11 @@ public class EmployeePayrollMSSQLDB {
     private static EmployeePayrollMSSQLDB employeePayrollDBService;
     private PreparedStatement employeePayrollDataStatement;
 
-    private EmployeePayrollMSSQLDB(){
+    private EmployeePayrollMSSQLDB() {
 
     }
 
-    public static EmployeePayrollMSSQLDB getInstance(){
+    public static EmployeePayrollMSSQLDB getInstance() {
         if(employeePayrollDBService == null)
             employeePayrollDBService = new EmployeePayrollMSSQLDB();
         return employeePayrollDBService;
@@ -33,16 +35,7 @@ public class EmployeePayrollMSSQLDB {
 
     public List<EmployeePayrollServicedatebase> readData() {
         String selectQuery = "SELECT * from employee_payroll";
-        List<EmployeePayrollServicedatebase> employeePayrollList = new ArrayList<>();
-        try(Connection connection = this.getConnection()){
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(selectQuery);
-            employeePayrollList = this.getEmployeePayrollData(resultSet);
-        }
-        catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-        return employeePayrollList;
+        return this.getEmployeePayrollDataForGivenSql(selectQuery);
     }
 
     public int updateEmployeeData(String name, double salary) {
@@ -89,7 +82,19 @@ public class EmployeePayrollMSSQLDB {
         return employeePayrollDataList;
     }
 
-    public void prepareStatementForEmployeeData(){
+    private List<EmployeePayrollServicedatebase> getEmployeePayrollDataForGivenSql(String sql){
+        try(Connection connection = this.getConnection()) {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            return getEmployeePayrollData(resultSet);
+        }
+        catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return null;
+    }
+
+    public void prepareStatementForEmployeeData() {
         try {
             Connection connection = this.getConnection();
             String sql = "SELECT * FROM employee_payroll WHERE name = ?";
@@ -118,17 +123,50 @@ public class EmployeePayrollMSSQLDB {
     public List<EmployeePayrollServicedatebase> getEmployeePayrollDataBetweenDates(String from, String to) {
         Date start = Date.valueOf(from);
         Date end = (to == null) ? Date.valueOf(LocalDate.now()) : Date.valueOf(to);
-        try(Connection connection = this.getConnection()){
-            String sql = "SELECT * FROM employee_payroll WHERE start BETWEEN ? AND ?";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setDate(1, start);
-            preparedStatement.setDate(2, end);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            return this.getEmployeePayrollData(resultSet);
+        String sql = String.format("SELECT * FROM employee_payroll WHERE start BETWEEN '%s' AND '%s'",
+                start, end);
+        return this.getEmployeePayrollDataForGivenSql(sql);
+    }
+
+    public List<String> calculateSumAverageMinMax() {
+        List<String> outputFromDB = new ArrayList<>();
+        try(Connection connection = this.getConnection()) {
+            String sql = "SELECT Sum(salary), Avg(salary), Min(salary), Max(salary) FROM employee_payroll";
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            while(resultSet.next()) {
+                outputFromDB.add(Double.toString(resultSet.getDouble("Sum(salary)")));
+                outputFromDB.add(Double.toString(resultSet.getDouble("Avg(salary)")));
+                outputFromDB.add(Double.toString(resultSet.getDouble("Min(salary)")));
+                outputFromDB.add(Double.toString(resultSet.getDouble("Max(salary)")));
+            }
         }
         catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-        return null;
+        return outputFromDB;
+    }
+
+
+    public Map<String, List<Double>> calculateSumAverageMinMax_GroupByGender() {
+        Map<String, List<Double>> outputMap = new HashMap<>();
+        try(Connection connection = this.getConnection()) {
+            String sql = "SELECT gender, SUM(salary), AVG(salary), MIN(salary), MAX(salary) " + "FROM employee_payroll GROUP BY gender";
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            while(resultSet.next()) {
+                String gender = resultSet.getString("Gender");
+                List<Double> fieldList = new ArrayList<>();
+                fieldList.add(resultSet.getDouble("SUM(salary)"));
+                fieldList.add(resultSet.getDouble("AVG(salary)"));
+                fieldList.add(resultSet.getDouble("MIN(salary)"));
+                fieldList.add(resultSet.getDouble("MAX(salary)"));
+                outputMap.put(gender, fieldList);
+            }
+        }
+        catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return outputMap;
     }
 }
