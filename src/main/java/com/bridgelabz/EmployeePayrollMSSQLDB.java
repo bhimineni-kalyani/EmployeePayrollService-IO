@@ -120,6 +120,26 @@ public class EmployeePayrollMSSQLDB {
         return 0;
     }
 
+    public EmployeePayrollServicedatebase addEmployeeToPayroll(String name, double salary, LocalDate startDate, String gender) {
+        int Id = -1;
+        EmployeePayrollServicedatebase employeePayrollData = null;
+        String sql = String.format("INSERT INTO employee_payroll (name, gender, salary, start)VALUES " +
+                "('%s', '%s', %s, '%s')", name, gender, salary, Date.valueOf(startDate));
+        try(Connection connection = this.getConnection()) {
+            Statement statement = connection.createStatement();
+            int rowAffected = statement.executeUpdate(sql, statement.RETURN_GENERATED_KEYS);
+            if(rowAffected == 1){
+                ResultSet resultSet = statement.getGeneratedKeys();
+                if(resultSet.next()) Id = resultSet.getInt(1);
+            }
+            employeePayrollData = new EmployeePayrollServicedatebase(Id, name, salary, startDate);
+        }
+        catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return employeePayrollData;
+    }
+
     public List<EmployeePayrollServicedatebase> getEmployeePayrollDataBetweenDates(String from, String to) {
         Date start = Date.valueOf(from);
         Date end = (to == null) ? Date.valueOf(LocalDate.now()) : Date.valueOf(to);
@@ -146,7 +166,6 @@ public class EmployeePayrollMSSQLDB {
         }
         return outputFromDB;
     }
-
 
     public Map<String, List<Double>> calculateSumAverageMinMax_GroupByGender() {
         Map<String, List<Double>> outputMap = new HashMap<>();

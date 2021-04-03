@@ -3,6 +3,7 @@ package com.bridgelabz;
 import org.junit.Before;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -48,10 +49,25 @@ public class EmployeePayrollMSSQLDBtest {
     }
 
     @Test
+    public void givenEmployeePayrollInDB_WhenCalculated_SUM_MIN_MAX_AVERAGE_ofSalary_ShouldGiveCorrectOutput(){
+        List<String> outputFromDB = employeePayrollService.calculateSumAverageMinMax(DB_IO);
+        List<String> expectedOutput = Arrays.asList("600000.0", "200000.0", "100000.0", "300000.0");
+        Assert.assertEquals(expectedOutput, outputFromDB);
+    }
+
+    @Test
     public void givenEmployeePayrollInDB_WhenCalculated_Sum_Min_Max_Average_ofSalary_GroupByGender_ShouldGiveCorrectOutput(){
         Map<String, List<Double>> outputMapFromDB = employeePayrollService.calculateSumAverageMinMax_GroupByGender(DB_IO);
         List<Double> expectedMaleList = Arrays.asList( 30000.00, 15000.00, 10000.00, 20000.00);
         List<Double> expectedFemaleList = Arrays.asList(30000.00, 60000.00, 90000.00, 12000.00);
         Assert.assertTrue(outputMapFromDB.get("M").equals(expectedMaleList) && outputMapFromDB.get("F").equals(expectedFemaleList));
+    }
+
+    @Test
+    public void givenNewEmployee_WhenAdded_ShouldSyncWithDB() {
+        employeePayrollService.readData(DB_IO);
+        employeePayrollService.addEmployeeToPayroll("Sai", 500000.00, LocalDate.now(), "F");
+        boolean result = employeePayrollService.checkEmployeePayrollInSyncWithDB("Sai");
+        Assert.assertTrue(result);
     }
 }
